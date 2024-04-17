@@ -5,15 +5,21 @@ project = 0
 dir = "C://Users/robat/Escritorio/Progra_Workspace/FL_Time/flps"
 global files
 
+flFiles = []
+
 def consoleView():
     findFiles()
-    # for i in range(len(findFiles())):
-    #     print(findFiles()[i])
+    print("\n\n")
 
-        # project = pyflp.parse(findFiles()[i])
-        # projectTitle = pyflp.FLP_HEADER
-        # time = project.time_spent
-        # print(projectTitle)
+    flFiles = findFiles()
+
+    for i in range(len(flFiles)):
+        # print(findFiles()[i])
+
+        project = pyflp.parse(flFiles()[i])
+        projectTitle = pyflp.FLP_HEADER
+        time = project.time_spent
+        print(projectTitle)
 
 def getFileName(dir):
     fileNames = []
@@ -23,24 +29,23 @@ def getFileName(dir):
     return fileNames
 
 def findFiles():
-    files = []
+    result = []
+    filesInDir = []
     fileNames = []
     ints = [1, 2, 3, 4]
     # if inputted dir is a file
     if os.path.isfile(dir):
-        files = getFileName(dir)
+        filesInDir = getFileName(dir)
     else: # if inputted dir is a folder dir
+        print("Checking which files in dir are .flp files  . . . \n")
         for i in range(len(os.listdir(dir))):
-            files += [dir + "/" + os.listdir(dir)[i]]
-            fileNames += [getFileName(files[i])]
-            
-            if files[i].endswith(".flp"):
-                print("Continued")
-            # if os.path.isfile(os.path.join(dir)):
-            #     files += [dir+os.listdir(dir)[i]]
-            #     print(files)
-    # print(fileNames)
-    return files
+            filesInDir += [dir + "/" + os.listdir(dir)[i]]
+            fileNames += [getFileName(filesInDir[i])]
+
+            if filesInDir[i].endswith(".flp"):
+                print(filesInDir[i] + " is an FL Studio file")
+                result += [filesInDir[i]]
+    return result
     # print(fileNames)
 
 # def timeLookout():
