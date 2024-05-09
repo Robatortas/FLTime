@@ -1,25 +1,40 @@
 import pyflp
 import os
 
+import pyflp.project
+
 project = 0
-dir = "C://Users/robat/Escritorio/Progra_Workspace/FL_Time/flps"
-global files
+# dir = "C://Users/robat/Escritorio/Progra_Workspace/FL_Time/flps"
 
 flFiles = []
+times = []
+numFiles = 0
+totalTime = 0
 
 def consoleView():
-    findFiles()
-    print("\n\n")
+    print("FLTime : by NoFall.")
 
-    flFiles = findFiles()
+def findFiles(dir):
+    filesInDir = []
+    fileNames = []
+    global numFiles
+    try:
+        numFiles = len(os.listdir(dir))
+        # if inputted dir is a file
+        if os.path.isfile(dir):
+            filesInDir = getFileName(dir)
+        else: # if inputted dir is a folder dir
+            print("Checking which files in dir are .flp files  . . . \n")
+            for i in range(numFiles):
+                filesInDir += [dir + "/" + os.listdir(dir)[i]]
+                fileNames += [getFileName(filesInDir[i])]
 
-    for i in range(len(flFiles)):
-        # print(findFiles()[i])
-
-        project = pyflp.parse(flFiles()[i])
-        projectTitle = pyflp.FLP_HEADER
-        time = project.time_spent
-        print(projectTitle)
+                if filesInDir[i].endswith(".flp"):
+                    print(filesInDir[i] + " is an FL Studio file")
+                    flFiles.append(filesInDir[i])
+    except:
+        print("Couldn't find specified path !")
+    return flFiles
 
 def getFileName(dir):
     fileNames = []
@@ -28,63 +43,73 @@ def getFileName(dir):
                 fileNames += [dir[i+1:len(dir)]]
     return fileNames
 
-def findFiles():
-    result = []
-    filesInDir = []
-    fileNames = []
-    ints = [1, 2, 3, 4]
-    # if inputted dir is a file
-    if os.path.isfile(dir):
-        filesInDir = getFileName(dir)
-    else: # if inputted dir is a folder dir
-        print("Checking which files in dir are .flp files  . . . \n")
-        for i in range(len(os.listdir(dir))):
-            filesInDir += [dir + "/" + os.listdir(dir)[i]]
-            fileNames += [getFileName(filesInDir[i])]
+def getMetaData():
+    global numFiles
+    print(numFiles)
+    for i in range(numFiles):
+        global project
+        global projectTitle
+        global time
+        project = pyflp.parse(flFiles[i-1])
+        projectTitle = project.title
+        time = project.time_spent
+        print(projectTitle)
+        global totalTime
+        calcTotalTime(time)
+        # totalTime += times[i]
+        # print("TOTALTIME")
+        # print(totalTime)
 
-            if filesInDir[i].endswith(".flp"):
-                print(filesInDir[i] + " is an FL Studio file")
-                result += [filesInDir[i]]
-    return result
-    # print(fileNames)
+# Parse time string to divide into three sections
+def calcTotalTime(time): 
+    hours = 0
+    mins = 0
+    secs = 0
 
-# def timeLookout():
-#     for i in 
-
-# class Gui:
-#     import PySimpleGUI as gui
     
-#     print("Bye World")
 
-#     title = "FL TIME"
-#     font = ("Cascadia Code", 40)
-#     margins = (50, 50)
+class Gui:
+    import PySimpleGUI as gui
 
-#     backgroundColor = '#222831'
-#     buttonColor = "#76ABAE"
-#     gui.theme = backgroundColor
+    title = "FL TIME"
+    font = ("Cascadia Code", 40)
+    margins = (50, 50)
 
-#     layout = [[gui.Text(title, size=(0, 0), key="TITLE", font=font, background_color=backgroundColor)], 
-#             [gui.Text("Directory", background_color=backgroundColor)], 
-#             [gui.In(size=(25, 1), enable_events=True, key="LINK")], 
-#             [gui.Text("Files Found: ", background_color=backgroundColor)],
-#             [gui.Text("Hours: ", background_color=backgroundColor)],
-#             [gui.Text("Minutes: ", background_color=backgroundColor)],
-#             [gui.Text("Seconds: ", background_color=backgroundColor)],
-#             [gui.Button("DOWNLOAD", button_color=buttonColor)]]
+    backgroundColor = '#222831'
+    buttonColor = "#76ABAE"
+    gui.theme = backgroundColor
+
+    layout = [[gui.Text(title, size=(0, 0), key="TITLE", font=font, background_color=backgroundColor)], 
+            [gui.Text("Directory", background_color=backgroundColor)],
+            [gui.In(size=(25, 1), enable_events=True, key="CHOSEN_PATH")],  [gui.FolderBrowse(button_color=buttonColor, key="BROWSE")],
+            [gui.Text("Files Found: " + str(numFiles), background_color=backgroundColor)],
+            [gui.Text("Hours: ", background_color=backgroundColor)],
+            [gui.Text("Minutes: ", background_color=backgroundColor)],
+            [gui.Text("Seconds: ", background_color=backgroundColor)],
+            [gui.Button("DOWNLOAD", button_color=buttonColor)]]
     
-#     window = gui.Window(title, layout, margins=margins, background_color=backgroundColor)
+    window = gui.Window(title, layout, margins=margins, background_color=backgroundColor)
 
-#     while True:
-#         event, values = window.read()
+    while True:
+        event, values = window.read()
 
-#         if event == "Exit" or event == gui.WIN_CLOSED or event == "OK_WARN":
-#             break
+        if(event == "BROWSE"):
+            values["CHOSE_PATH"] = values["BROWSE"]
 
-#     window.close()
+        if(event == "CHOSEN_PATH"):
+            chosenPath = str(values["CHOSEN_PATH"])
+            if(os.path.exists(chosenPath)):
+                findFiles(chosenPath)
+                getMetaData()
+                print("Path Chosen: " + chosenPath)
+                window.refresh()
+
+        if event == "Exit" or event == gui.WIN_CLOSED or event == "OK_WARN":
+            break
+
+    window.close()
     
 def main():
-    print("Hello World")
     consoleView()
     
 main()
